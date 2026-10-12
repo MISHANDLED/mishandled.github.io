@@ -1,0 +1,50 @@
+{
+  "originHash" : "459eb52d14a608acf75f3c193bbd2a41b8af223a0c052fbebd0fda95d361c058",
+  "pins" : [
+    {
+      "identity" : "elementary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elementary-swift/elementary.git",
+      "state" : {
+        "revision" : "9a66ebc5f8a2586f2a94893fc6e22d833c8e2ae5",
+        "version" : "0.8.2"
+      }
+    },
+    {
+      "identity" : "somlswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soml-lang/SOMLSwift.git",
+      "state" : {
+        "revision" : "23fe09312afc845b8a369c46bf9beaf5b46908f2"
+      }
+    },
+    {
+      "identity" : "swift-cmark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-cmark.git",
+      "state" : {
+        "branch" : "gfm",
+        "revision" : "4eac53532e65c5a7737b421c7b4e0e3ea309a368"
+      }
+    },
+    {
+      "identity" : "swift-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/swift-markdown.git",
+      "state" : {
+        "branch" : "sindre-improvements",
+        "revision" : "72692e0ce7f27549ad4b6057635a9e27d7431e2a"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
+        "version" : "604.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

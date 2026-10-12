@@ -1,8 +1,9 @@
-name: Deploy Astro to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,21 +16,26 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-26
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      # The package needs Swift 6.4, which comes with Xcode 27.
+      - name: Select Xcode
+        run: |
+          xcode="$(ls -d /Applications/Xcode_27*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          swift --version
 
-      - uses: pnpm/action-setup@v4
+      - uses: actions/cache@v4
         with:
-          version: 9
-          run_install: false
+          path: .build
+          key: build-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: build-${{ runner.os }}-
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
+      - name: Build site
+        run: swift run -c release Portfolio
 
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -38,5 +44,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - id: deployment
+        uses: actions/deploy-pages@v4
