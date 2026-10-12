@@ -193,8 +193,10 @@ struct SiteNav: HTML {
 					}
 					.nested("&[aria-current]") { $0.color(.semantic(.accent)) }
 			case .actions:
+				// Always the last column, so the buttons stay on the right when the links are hidden.
 				Style()
 					.hstack(alignment: .center, justification: .end, spacing: .rootEm(0.5))
+					.declaration(.gridColumn, "3")
 					.declaration(.justifySelf, "end")
 			case .iconButton:
 				Style()
