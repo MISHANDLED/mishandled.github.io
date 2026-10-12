@@ -21,6 +21,7 @@ struct SiteFooter: HTML {
 
 		var style: Style {
 			Style()
+				.margin(.top, .rootEm(6))
 				.padding(.top, .rootEm(1.5))
 				.border(.top, .semantic(.separator))
 				.font(size: .rootEm(0.85))

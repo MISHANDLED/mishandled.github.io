@@ -20,6 +20,11 @@ struct BlogPost: Sendable {
 	let markdown: MarkdownDocument
 	let path: RoutePath
 
+	/**
+	Minutes to read the post, at about 200 words a minute, code included.
+	*/
+	let readingMinutes: Int
+
 	static func loadAll(from project: Project) throws -> [Self] {
 		let directory = project.contentDirectory.appending(path: "blog")
 
@@ -40,7 +45,8 @@ struct BlogPost: Sendable {
 				return Self(
 					frontmatter: try file.decodeFrontmatter(),
 					markdown: markdown,
-					path: RoutePath("/blog").appending(file.slug)
+					path: RoutePath("/blog").appending(file.slug),
+					readingMinutes: max(1, Int((Double(file.body.split(whereSeparator: \.isWhitespace).count) / 200).rounded(.up)))
 				)
 			}
 			.filter { !$0.frontmatter.isDraft }
@@ -57,6 +63,8 @@ struct BlogPostPage: HTML {
 
 	var body: some HTML {
 		SiteBackground()
+		SiteNav(current: "writing")
+		SiteCat()
 
 		main {
 			a(.href(RoutePath.root)) { "← \(Resume.name)" }
@@ -100,8 +108,8 @@ struct BlogPostPage: HTML {
 					.fontWeight(.medium)
 			case .title:
 				Style()
-					.font(size: .rootEm(2.4), lineHeight: 1.1)
-					.letterSpacing(.em(-0.025))
+					.font(size: .rootEm(2), lineHeight: 1.2)
+					.letterSpacing(.em(-0.03))
 			case .date:
 				Style()
 					.margin(top: .rootEm(0.6), bottom: .rootEm(2.5))
@@ -109,7 +117,7 @@ struct BlogPostPage: HTML {
 			case .prose:
 				// Markdown output has no classes, so the typography styles its elements.
 				Style()
-					.font(size: .rootEm(1.06), lineHeight: 1.7)
+					.font(size: .rootEm(1), lineHeight: 1.75)
 					.margin(.bottom, .rootEm(3.5))
 					.nested("> * + *") { $0.margin(.top, .rootEm(1.1)) }
 					.nested("h2") { $0.font(size: .rootEm(1.45)).margin(.top, .rootEm(2.4)) }
@@ -123,17 +131,19 @@ struct BlogPostPage: HTML {
 					.nested(":not(pre) > code") {
 						$0.font(size: .em(0.88))
 							.padding(vertical: .em(0.1), horizontal: .em(0.35))
-							.cornerRadius(.rootEm(0.3))
+							.color(.semantic(.accent))
+							.squircle(.rootEm(0.4))
 							.background(.semantic(.card))
 					}
 					.nested("pre") {
 						$0.padding(.rootEm(1))
-							.cornerRadius(.rootEm(0.7))
+							.squircle(.rootEm(1))
+							.border(.semantic(.separator))
 							.background(.semantic(.card))
 							.overflow(.auto)
 							.font(size: .rootEm(0.86), lineHeight: 1.55)
 					}
-					.nested("code") { $0.fontFamily("ui-monospace, SFMono-Regular, Menlo, monospace") }
+					.nested("code") { $0.fontFamily("inherit") }
 					.nested("table") {
 						$0.frame(width: .percent(100))
 							.declaration(.borderCollapse, "collapse")

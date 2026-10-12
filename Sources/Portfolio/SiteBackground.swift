@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-The animated background of every page, drawn by `background.js` with WebGL. Without WebGL, the page keeps its plain background.
+The background of every page: a grid of dots, drawn by `background.js`, that lights up around the pointer. Without scripts, the page keeps its plain background.
 */
 struct SiteBackground: HTML {
 	var body: some HTML {

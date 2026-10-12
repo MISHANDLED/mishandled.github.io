@@ -1,157 +1,118 @@
-// The animated background of every page: a slow aurora drawn by a WebGL fragment shader.
-// It renders at half resolution and about 30 frames per second, as it is soft anyway.
-// With reduced motion, it draws one still frame. Without WebGL, the page keeps its plain background.
-
-const vertexShader = `#version 300 es
-void main() {
-	// One triangle that covers the whole canvas.
-	vec2 point = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-	gl_Position = vec4(point * 2.0 - 1.0, 0.0, 1.0);
-}`;
-
-const fragmentShader = `#version 300 es
-precision highp float;
-
-uniform float time;
-uniform vec2 resolution;
-uniform float dark;
-
-out vec4 outputColor;
-
-float hash(vec2 point) {
-	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
-}
-
-float noise(vec2 point) {
-	vec2 cell = floor(point);
-	vec2 offset = fract(point);
-	vec2 curve = offset * offset * (3.0 - 2.0 * offset);
-	return mix(
-		mix(hash(cell), hash(cell + vec2(1.0, 0.0)), curve.x),
-		mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), curve.x),
-		curve.y
-	);
-}
-
-// Layers of noise, for soft, cloud-like shapes.
-float fbm(vec2 point) {
-	float value = 0.0;
-	float amplitude = 0.5;
-	for (int octave = 0; octave < 5; octave++) {
-		value += amplitude * noise(point);
-		point = point * 2.02 + vec2(1.7, 9.2);
-		amplitude *= 0.5;
-	}
-	return value;
-}
-
-void main() {
-	vec2 uv = gl_FragCoord.xy / resolution;
-	vec2 point = (gl_FragCoord.xy - 0.5 * resolution) / resolution.y;
-	float t = time * 0.04;
-
-	// Noise that bends noise, so the shapes flow instead of sliding.
-	vec2 warp = vec2(fbm(point * 1.4 + t), fbm(point * 1.4 - t + 3.1));
-	float field = fbm(point * 1.8 + 2.0 * warp + vec2(t * 2.0, -t));
-
-	vec3 orange = vec3(0.94, 0.32, 0.22);
-	vec3 pink = vec3(0.93, 0.33, 0.60);
-	vec3 violet = vec3(0.42, 0.32, 0.95);
-	vec3 amber = vec3(1.0, 0.62, 0.20);
-
-	vec3 color = mix(orange, pink, smoothstep(0.3, 0.7, warp.x));
-	color = mix(color, violet, smoothstep(0.45, 0.8, warp.y) * 0.8);
-	color = mix(color, amber, smoothstep(0.6, 0.9, field) * 0.6);
-
-	// Stronger at the top of the screen, calmer behind the text below.
-	float intensity = smoothstep(0.25, 0.85, field) * mix(0.45, 1.0, uv.y);
-
-	// The page background of the theme, with the aurora over it.
-	vec3 background = dark > 0.5 ? vec3(0.04, 0.045, 0.07) : vec3(1.0);
-	float amount = dark > 0.5 ? 0.55 : 0.4;
-	outputColor = vec4(mix(background, color, intensity * amount), 1.0);
-}`;
+// The background of every page: a quiet grid of dots that light up and part around the pointer.
+// It draws only while the glow moves, so an idle page costs nothing. With reduced motion, the grid stays still.
 
 const canvas = document.querySelector('[data-background]');
-const gl = canvas?.getContext('webgl2', {alpha: false, antialias: false});
+const context = canvas?.getContext('2d');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const darkMode = matchMedia('(prefers-color-scheme: dark)');
 
-function compile(type, source) {
-	const shader = gl.createShader(type);
-	gl.shaderSource(shader, source);
-	gl.compileShader(shader);
-	return shader;
+const spacing = 28;
+const radius = 180;
+const push = 7;
+
+const pointer = {x: 0, y: 0, active: false};
+const glow = {x: 0, y: 0, strength: 0};
+let width = 0;
+let height = 0;
+let frame = 0;
+
+// The theme button in the bar sets the scheme on the root. Otherwise, the system's applies.
+function isDark() {
+	const chosen = document.documentElement.style.colorScheme;
+	return chosen ? chosen === 'dark' : darkMode.matches;
 }
 
-function start() {
-	const program = gl.createProgram();
-	gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexShader));
-	gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentShader));
-	gl.linkProgram(program);
+function colors() {
+	return isDark()
+		? {dot: 'rgba(255, 255, 255, 0.11)', accent: [74, 222, 128]}
+		: {dot: 'rgba(0, 0, 0, 0.13)', accent: [22, 163, 74]};
+}
 
-	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		console.error(gl.getProgramInfoLog(program));
-		canvas.remove();
-		return;
+function resize() {
+	const ratio = Math.min(devicePixelRatio, 2);
+	width = innerWidth;
+	height = innerHeight;
+	canvas.width = width * ratio;
+	canvas.height = height * ratio;
+	context.setTransform(ratio, 0, 0, ratio, 0, 0);
+	draw();
+}
+
+function draw() {
+	const {dot, accent} = colors();
+	const [red, green, blue] = accent;
+	context.clearRect(0, 0, width, height);
+
+	// The grid is centered, so the margins are even at every width.
+	const startX = (width % spacing) / 2;
+	const startY = (height % spacing) / 2;
+
+	for (let x = startX; x <= width; x += spacing) {
+		for (let y = startY; y <= height; y += spacing) {
+			const dx = x - glow.x;
+			const dy = y - glow.y;
+			const distance = Math.hypot(dx, dy);
+			const amount = glow.strength * Math.max(0, 1 - distance / radius) ** 2;
+
+			if (amount < 0.01) {
+				context.fillStyle = dot;
+				context.fillRect(x - 0.75, y - 0.75, 1.5, 1.5);
+				continue;
+			}
+
+			const offset = distance > 0 ? (push * amount) / distance : 0;
+			const size = 1.5 + amount * 1.5;
+			context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${0.15 + amount * 0.85})`;
+			context.fillRect(x + dx * offset - size / 2, y + dy * offset - size / 2, size, size);
+		}
 	}
+}
 
-	gl.useProgram(program);
-	const timeLocation = gl.getUniformLocation(program, 'time');
-	const resolutionLocation = gl.getUniformLocation(program, 'resolution');
-	const darkLocation = gl.getUniformLocation(program, 'dark');
+function step() {
+	// The glow eases toward the pointer, and fades in and out instead of jumping.
+	glow.x += (pointer.x - glow.x) * 0.18;
+	glow.y += (pointer.y - glow.y) * 0.18;
+	glow.strength += ((pointer.active ? 1 : 0) - glow.strength) * 0.12;
+	draw();
 
-	const resize = () => {
-		const scale = Math.min(devicePixelRatio, 2) * 0.5;
-		canvas.width = Math.max(1, Math.round(innerWidth * scale));
-		canvas.height = Math.max(1, Math.round(innerHeight * scale));
-		gl.viewport(0, 0, canvas.width, canvas.height);
-	};
+	const settled = Math.abs(pointer.x - glow.x) < 0.5
+		&& Math.abs(pointer.y - glow.y) < 0.5
+		&& Math.abs((pointer.active ? 1 : 0) - glow.strength) < 0.01;
+	frame = settled ? 0 : requestAnimationFrame(step);
+}
 
-	const startTime = performance.now();
-	let lastFrame = 0;
-	let frameRequest = 0;
+function wake() {
+	if (!frame && !reducedMotion.matches) {
+		frame = requestAnimationFrame(step);
+	}
+}
 
-	const render = now => {
-		gl.uniform1f(timeLocation, reducedMotion.matches ? 0 : (now - startTime) / 1000);
-		gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-		gl.uniform1f(darkLocation, darkMode.matches ? 1 : 0);
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
-	};
+if (context) {
+	addEventListener('resize', resize);
+	darkMode.addEventListener('change', draw);
+	addEventListener('themechange', draw);
 
-	const tick = now => {
-		frameRequest = 0;
-
-		if (now - lastFrame >= 33) {
-			lastFrame = now;
-			render(now);
+	addEventListener('pointermove', event => {
+		if (event.pointerType !== 'mouse') {
+			return;
 		}
 
-		if (!document.hidden && !reducedMotion.matches) {
-			frameRequest = requestAnimationFrame(tick);
+		if (!pointer.active) {
+			// Start the glow where the pointer enters, not where it left.
+			glow.x = event.clientX;
+			glow.y = event.clientY;
 		}
-	};
 
-	const redraw = () => {
-		render(performance.now());
+		pointer.x = event.clientX;
+		pointer.y = event.clientY;
+		pointer.active = true;
+		wake();
+	}, {passive: true});
 
-		if (!frameRequest && !document.hidden && !reducedMotion.matches) {
-			frameRequest = requestAnimationFrame(tick);
-		}
-	};
-
-	addEventListener('resize', () => {
-		resize();
-		redraw();
+	document.documentElement.addEventListener('pointerleave', () => {
+		pointer.active = false;
+		wake();
 	});
-	document.addEventListener('visibilitychange', redraw);
-	reducedMotion.addEventListener('change', redraw);
-	darkMode.addEventListener('change', redraw);
 
 	resize();
-	redraw();
-}
-
-if (gl) {
-	start();
 }

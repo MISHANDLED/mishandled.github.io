@@ -27,6 +27,12 @@ struct Layout: HTMLDocument {
 		meta(.property("og:description"), .content(description))
 		link(.rel(.canonical), .href(path.absoluteURL(site: siteURL).absoluteString))
 		link(.rel(.icon), .href("/favicon.svg"))
+
+		// The theme chosen with the button in the bar, applied before the page draws, so it never flashes the other one.
+		script {
+			HTMLRaw("try{const t=localStorage.getItem('theme');if(t)document.documentElement.style.colorScheme=t}catch{}")
+		}
+		link(.rel(.stylesheet), .href("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"))
 		link(.rel(.stylesheet), .href(Stylesheet.sitePath))
 
 		// Only the rules of the components this page uses.
@@ -71,6 +77,9 @@ func routes() throws -> [Route] {
 	return [
 		page(.root, title: "\(Resume.name) · \(Resume.role)", description: Resume.summary) {
 			HomePage(posts: posts)
+		},
+		page(AboutPage.path, title: "About · \(Resume.name)", description: Resume.aboutLead.emphasis + Resume.aboutLead.rest) {
+			AboutPage()
 		},
 		.text(Stylesheet.sitePath) {
 			Stylesheet.site.css

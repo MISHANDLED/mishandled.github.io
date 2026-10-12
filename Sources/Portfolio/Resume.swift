@@ -20,6 +20,43 @@ enum Resume {
 		ProfileLink(title: "Résumé", url: URL(string: "/resume.pdf")!),
 	]
 
+	static let handle = "@mishandled"
+
+	/**
+	The line under my name on the about page. The first part is green.
+	*/
+	static let aboutLead = (emphasis: "iOS engineer", rest: " fascinated by the intersection of engineering and experience, from crafting fluid interfaces to rethinking app architecture.")
+
+	/**
+	The facts on the about page, each with an optional note after `//`.
+	*/
+	static let facts: [Fact] = [
+		Fact(label: "name", value: "Devansh Mohata"),
+		Fact(label: "based in", value: "Gurugram, India", note: "IST"),
+		Fact(label: "role", value: "iOS Engineer, SDE II", note: "Zomato"),
+		Fact(label: "shipping iOS", value: "since 2022", note: "4 years"),
+		Fact(label: "studied", value: "B.Tech, IT", note: "MSIT 2022"),
+		Fact(label: "off the clock", value: "badminton, walks, tinkering"),
+	]
+
+	static let about: [AboutTopic] = [
+		AboutTopic(
+			title: "A little about how I build things",
+			paragraphs: [
+				"I started out as an iOS developer almost by accident. My first job put me on the iOS side of things, and with practically zero frontend experience, I was a little hesitant at first. That changed about 15 days in, when I shipped my first end-to-end feature. Seeing something I had built come to life on a screen, shaping what a user sees, feels, and experiences, just clicked.",
+				"Since then, I’ve been fascinated by the intersection of engineering and experience. I enjoy working across the stack, from crafting fluid interfaces to rethinking app architecture, reducing app size, and building systems that make life easier for the developers who come after me. My favourite kind of engineering? Making the next feature so easy to build that it almost feels like plug-and-play.",
+			]
+		),
+		AboutTopic(
+			title: "Outside the Xcode window",
+			paragraphs: [
+				"I have a habit of taking things apart just to understand how they work. Electronic gadgets, unfamiliar components, the occasional mystery of modern technology, if it has parts worth investigating, I’m probably curious about what’s inside.",
+				"When I’m not experimenting with Swift or tinkering with electronics, you’ll usually find me playing badminton, out on a walk, or on a call with my favourite person.",
+				"Someday, I’d love to lead a team of curious, ambitious engineers working on problems that genuinely matter. Until then, I’m happy learning, building, breaking things (preferably not in production), and figuring out how to make them better.",
+			]
+		),
+	]
+
 	static let highlights: [Highlight] = [
 		Highlight(value: "20,000+", label: "orders accepted daily through a flow I built from zero"),
 		Highlight(value: "80%", label: "cache hit rate of my video caching layer, in 3 apps"),
@@ -100,6 +137,17 @@ enum Resume {
 struct ProfileLink {
 	let title: String
 	let url: URL
+}
+
+struct Fact {
+	let label: String
+	let value: String
+	var note: String?
+}
+
+struct AboutTopic {
+	let title: String
+	let paragraphs: [String]
 }
 
 struct Highlight {
