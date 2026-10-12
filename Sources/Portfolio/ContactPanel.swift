@@ -212,3 +212,41 @@ struct ContactPanel: HTML {
 		}
 	}
 }
+
+/**
+Says that an email link copied the address, for browsers without an email app to open. `contact.js` fills it in.
+
+It is outside the sections, because their scroll-in animation would make it fixed to the section instead of the screen.
+*/
+struct EmailToast: HTML {
+	var body: some HTML<HTMLTag.div> {
+		div(.data("toast", value: ""), .custom(name: "role", value: "status")) {}
+			.style(Styles.root)
+	}
+
+	enum Styles: StyleSet {
+		case root
+
+		var style: Style {
+			Style()
+				.position(.fixed)
+				.declaration(.bottom, "1.5rem")
+				.leading(.percent(50))
+				.zIndex(30)
+				.padding(vertical: .rootEm(0.65), horizontal: .rootEm(1.1))
+				.squircle(.rootEm(0.8))
+				.border(.semantic(.separator))
+				.background(.semantic(.matte))
+				.color(.semantic(.primaryText))
+				.font(size: .rootEm(0.8))
+				.declaration(.whiteSpace, "nowrap")
+				.declaration(.boxShadow, "0 0.75rem 2rem -1rem rgb(0 0 0 / 0.6)")
+				.opacity(0)
+				.declaration(.transform, "translate(-50%, 0.5rem)")
+				.allowsHitTesting(false)
+				.transition(.opacity, .transform, animation: .easeOut(duration: .milliseconds(200)))
+				.nested("&[data-shown]") { $0.opacity(1).declaration(.transform, "translate(-50%, 0)") }
+				.nested("&::before") { $0.content("✓ ", alternativeText: "").color(.semantic(.accent)) }
+		}
+	}
+}

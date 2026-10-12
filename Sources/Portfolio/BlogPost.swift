@@ -67,9 +67,6 @@ struct BlogPostPage: HTML {
 		SiteCat()
 
 		main {
-			a(.href(RoutePath.root)) { "← \(Resume.name)" }
-				.style(Styles.back)
-
 			article {
 				header {
 					h1 { post.frontmatter.title }
@@ -80,6 +77,7 @@ struct BlogPostPage: HTML {
 					}
 					.style(Styles.date)
 				}
+				.style(Styles.header)
 
 				div {
 					HTMLRaw(post.markdown.html)
@@ -93,19 +91,17 @@ struct BlogPostPage: HTML {
 	}
 
 	enum Styles: StyleSet {
-		case back
+		case header
 		case title
 		case date
 		case prose
 
 		var style: Style {
 			switch self {
-			case .back:
+			// The bar at the top leads back, so the post starts with its title.
+			case .header:
 				Style()
-					.display(.inlineBlock)
-					.margin(.bottom, .rootEm(2.5))
-					.font(size: .rootEm(0.92))
-					.fontWeight(.medium)
+					.padding(.top, .rootEm(5))
 			case .title:
 				Style()
 					.font(size: .rootEm(2), lineHeight: 1.2)

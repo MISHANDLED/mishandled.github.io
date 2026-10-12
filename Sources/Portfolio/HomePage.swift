@@ -12,6 +12,7 @@ struct HomePage: HTML {
 		SiteBackground()
 		SiteNav()
 		SiteCat()
+		EmailToast()
 
 		main {
 			header(.id("top")) {
@@ -53,6 +54,11 @@ struct HomePage: HTML {
 				}
 				.hstack(spacing: .rootEm(1.75))
 				.style { $0.flexWrap() }
+
+				// Where the cat sits until the page scrolls. `cat.js` stands it on the line.
+				span(.data("cat-perch", value: "")) { "~/cat · pet me" }
+					.accessibilityHidden()
+					.style(Styles.perch)
 
 				a(.href("#highlights")) {
 					"Scroll"
@@ -196,6 +202,7 @@ struct HomePage: HTML {
 	enum Styles: StyleSet {
 		case root
 		case hero
+		case perch
 		case scrollHint
 		case scrollArrow
 		case prompt
@@ -239,6 +246,19 @@ struct HomePage: HTML {
 						$0.declaration(.scrollSnapType, "y proximity")
 							.declaration(.scrollPaddingTop, "3.5rem")
 					}
+			case .perch:
+				// A ledge on the empty side of the hero, on screens wide enough to have one.
+				Style()
+					.position(.absolute)
+					.top(.percent(52))
+					.declaration(.insetInlineEnd, "0")
+					.frame(width: .rootEm(11))
+					.padding(.top, .rootEm(0.6))
+					.border(.top, .semantic(.separator))
+					.font(size: .rootEm(0.7))
+					.color(.semantic(.secondaryText))
+					.textAlign(.center)
+					.hidden(below: Breakpoint(minimumWidthInRem: 56))
 			case .scrollHint:
 				Style()
 					.hidden(below: Breakpoint(minimumWidthInRem: 56))

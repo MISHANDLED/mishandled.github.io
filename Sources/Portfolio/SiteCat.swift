@@ -2,7 +2,7 @@ import Elementary
 import SiteKit
 
 /**
-A small line-drawn cat that lives at the bottom of the screen. `cat.js` walks it to the pointer, sits it down, and lets it fall asleep. Clicking it makes it meow. Without scripts, it sits in the corner.
+A small line-drawn cat that lives at the bottom of the screen. On the home page, it starts on a ledge in the hero and jumps down once the page scrolls. `cat.js` walks it to the pointer, sits it down, and lets it fall asleep. Clicking it makes it meow. Without scripts, it sits in the corner.
 */
 struct SiteCat: HTML {
 	var body: some HTML {
@@ -55,6 +55,8 @@ struct SiteCat: HTML {
 					.declaration(.fontFamily, "inherit")
 					.cursor(.pointer)
 					.declaration(.transform, "translateX(calc(100vw - 88px))")
+					// It grows on the ledge from its feet, so its feet stay on the ledge.
+					.declaration(.transformOrigin, "50% 100%")
 					.declaration(.webkitTapHighlightColor, "transparent")
 					.nested("svg") {
 						$0.display(.block)
@@ -90,6 +92,10 @@ struct SiteCat: HTML {
 						$0.animation(Animations.step, .easeInOut(duration: .milliseconds(320)).repeatForever(autoreverses: true))
 					}
 					.nested("&[data-state=walk] .cat-leg-b") { $0.declaration(.animationDelay, "-320ms") }
+					// Jumping: the legs stretch out, front forward and back behind.
+					.nested("&[data-state=jump] .cat-leg") { $0.transition(.transform, animation: .easeOut(duration: .milliseconds(150))) }
+					.nested("&[data-state=jump] .cat-leg-a") { $0.declaration(.transform, "rotate(-30deg)") }
+					.nested("&[data-state=jump] .cat-leg-b") { $0.declaration(.transform, "rotate(30deg)") }
 					// Sleeping: the eyes close, and a z drifts up.
 					.nested("&[data-state=sleep] .cat-eye") { $0.declaration(.animation, .none).declaration(.transform, "scaleY(0.15)") }
 					.nested("&[data-state=sleep] .cat-z") {
