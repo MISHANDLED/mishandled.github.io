@@ -16,6 +16,8 @@ enum Resume {
 		ProfileLink(title: "GitHub", url: #URL("https://github.com/mishandled")),
 		ProfileLink(title: "LinkedIn", url: #URL("https://linkedin.com/in/mishandled")),
 		ProfileLink(title: "Email", url: #URL("mailto:devmoh08@gmail.com")),
+		// Published from `public/resume.pdf`. The link check fails the build if it is missing.
+		ProfileLink(title: "Résumé", url: URL(string: "/resume.pdf")!),
 	]
 
 	static let highlights: [Highlight] = [
