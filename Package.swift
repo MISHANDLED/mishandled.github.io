@@ -19,7 +19,7 @@ let package = Package(
 	dependencies: [
 		.package(url: "https://github.com/elementary-swift/elementary.git", exact: "0.8.2"),
 		.package(url: "https://github.com/sindresorhus/swift-markdown.git", branch: "sindre-improvements"),
-		.package(url: "https://github.com/soml-lang/SOMLSwift.git", revision: "23fe09312afc845b8a369c46bf9beaf5b46908f2"),
+		.package(url: "https://github.com/soml-lang/SOMLSwift.git", exact: "0.0.1"),
 		.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0"..<"605.0.0"),
 	],
 	targets: [
