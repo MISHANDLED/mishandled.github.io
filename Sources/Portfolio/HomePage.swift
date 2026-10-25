@@ -111,10 +111,57 @@ struct HomePage: HTML {
 								p { job.role }
 									.style(Styles.muted)
 
-								ul {
-									for point in job.points {
-										li { point }
-											.style(Styles.point)
+								if !job.steps.isEmpty {
+									ol {
+										for step in job.steps {
+											li {
+												span { step.title }
+													.style(Styles.stepTitle)
+												span { step.period }
+													.style(Styles.small, Styles.muted)
+												if let note = step.note {
+													span { "// \(note)" }
+														.style(Styles.small, Styles.accent)
+												}
+											}
+											.style(Styles.step)
+										}
+									}
+									.vstack(spacing: .rootEm(0.6))
+									.style(Styles.steps)
+								}
+
+								let shownCount = job.visiblePoints ?? job.points.count
+								let morePoints = job.points.dropFirst(shownCount)
+
+								div {
+									ul {
+										for point in job.points.prefix(shownCount) {
+											li { point }
+												.style(Styles.point)
+										}
+									}
+									.vstack(spacing: .rootEm(0.75))
+
+									// The rest of a long job, behind a native toggle, so it needs no JavaScript and find-in-page still opens it.
+									if !morePoints.isEmpty {
+										details {
+											summary {
+												span(.data("more", value: "closed")) { "+ \(morePoints.count) more" }
+												span(.data("more", value: "open")) { "– show less" }
+											}
+											.style(Styles.moreToggle)
+
+											ul {
+												for point in morePoints {
+													li { point }
+														.style(Styles.point)
+												}
+											}
+											.vstack(spacing: .rootEm(0.75))
+											.style { $0.margin(.top, .rootEm(0.75)) }
+										}
+										.style(Styles.more)
 									}
 								}
 								.vstack(spacing: .rootEm(0.75))
@@ -125,8 +172,11 @@ struct HomePage: HTML {
 						}
 						.style(Styles.job)
 					}
+
+					p { "Let’s start the journey" }
+						.style(Styles.small, Styles.muted, Styles.journeyStart)
 				}
-				.vstack(spacing: .rootEm(4))
+				.vstack()
 			}
 
 			Section(number: 4, title: "Open Source & Talks", id: "open-source") {
@@ -219,7 +269,14 @@ struct HomePage: HTML {
 		case job
 		case period
 		case company
+		case journeyStart
+		case steps
+		case step
+		case stepTitle
+		case accent
 		case point
+		case more
+		case moreToggle
 		case cards
 		case card
 		case linkCard
@@ -352,10 +409,45 @@ struct HomePage: HTML {
 					.color(.semantic(.secondaryText))
 					.transition(.transform, .colors, animation: .easeOut(duration: .milliseconds(250)))
 			case .job:
+				// The jobs hang off one vertical line, with a dot per job and the current one in the accent color.
 				Style()
 					.grid(columns: "1fr")
 					.gap(row: .rootEm(0.5), column: .rootEm(2))
 					.from(Breakpoint(minimumWidthInRem: 40)) { $0.grid(columns: "12rem minmax(0, 46rem)") }
+					.position(.relative)
+					.padding(.leading, .rootEm(1.75))
+					.padding(.bottom, .rootEm(4))
+					.border(.leading, .semantic(.separator))
+					.before {
+						$0.content("", alternativeText: "")
+							.position(.absolute)
+							.top(.rootEm(0.3))
+							.leading(.rootEm(-0.375))
+							.frame(width: .rootEm(0.7), height: .rootEm(0.7))
+							.cornerRadius(.circle)
+							.background(.semantic(.pageBackground))
+							.border(.semantic(.secondaryText))
+					}
+					.nested("&:first-child::before") { $0.background(.semantic(.accent)).declaration(.borderColor, "var(--accent)") }
+					// The line starts at the first dot instead of above it.
+					.nested("&:first-child") { $0.declaration(Property("border-image"), "linear-gradient(transparent 0.65rem, var(--separator) 0.65rem) 1") }
+			case .journeyStart:
+				// The end of the line, where the oldest job began. The line stops at its dot.
+				Style()
+					.position(.relative)
+					.padding(.leading, .rootEm(1.75))
+					.border(.leading, .semantic(.separator))
+					.declaration(Property("border-image"), "linear-gradient(var(--separator) 0.65rem, transparent 0.65rem) 1")
+					.before {
+						$0.content("", alternativeText: "")
+							.position(.absolute)
+							.top(.rootEm(0.3))
+							.leading(.rootEm(-0.375))
+							.frame(width: .rootEm(0.7), height: .rootEm(0.7))
+							.cornerRadius(.circle)
+							.background(.semantic(.pageBackground))
+							.border(.semantic(.secondaryText))
+					}
 			case .period:
 				Style()
 					.padding(.top, .rootEm(0.2))
@@ -364,6 +456,49 @@ struct HomePage: HTML {
 					.font(size: .rootEm(1.15))
 					.fontWeight(.medium)
 					.margin(.bottom, .rootEm(0.25))
+			case .steps:
+				// A vertical line through the titles, newest on top.
+				Style()
+					.margin(.top, .rootEm(1))
+					.padding(.leading, .rootEm(1.25))
+					.border(.leading, .semantic(.separator))
+					.declaration(Property("border-image"), "linear-gradient(transparent 0.7rem, var(--separator) 0.7rem calc(100% - 1rem), transparent calc(100% - 1rem)) 1")
+			case .step:
+				Style()
+					.hstack(spacing: .rootEm(0.75))
+					.flexWrap()
+					.declaration(.alignItems, "baseline")
+					.position(.relative)
+					.before {
+						$0.content("", alternativeText: "")
+							.position(.absolute)
+							.top(.em(0.45))
+							.leading(.rootEm(-1.25 - 0.3))
+							.frame(width: .rootEm(0.55), height: .rootEm(0.55))
+							.cornerRadius(.circle)
+							.background(.semantic(.pageBackground))
+							.border(.semantic(.secondaryText))
+					}
+					.nested("&:first-child::before") { $0.background(.semantic(.accent)).declaration(.borderColor, "var(--accent)") }
+			case .stepTitle:
+				Style()
+					.fontWeight(.medium)
+			case .accent:
+				Style()
+					.color(.semantic(.accent))
+			case .more:
+				Style()
+					.nested("&[open] [data-more=closed]") { $0.hidden() }
+					.nested("&:not([open]) [data-more=open]") { $0.hidden() }
+			case .moreToggle:
+				Style()
+					.display(.inlineBlock)
+					.declaration(.listStyle, "none")
+					.cursor(.pointer)
+					.font(size: .rootEm(0.85))
+					.color(.semantic(.accent))
+					.nested("&::-webkit-details-marker") { $0.hidden() }
+					.hover { $0.declaration(Property("text-decoration"), "underline") }
 			case .point:
 				Style()
 					.padding(.leading, .rootEm(1.25))

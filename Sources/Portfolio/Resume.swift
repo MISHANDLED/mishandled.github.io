@@ -6,11 +6,11 @@ The content of the site, from the résumé. Typed, so a missing field fails the 
 */
 enum Resume {
 	static let name = "Devansh Mohata"
-	static let role = "iOS Engineer"
+	static let role = "iOS Engineer, SDE III"
 	static let location = "Gurugram, India"
 	static let email = "devmoh08@gmail.com"
 
-	static let summary = "iOS engineer with 4 years shipping consumer and merchant products at Zomato scale, owning features end-to-end from architecture through phased rollout. I mentor engineers, run the internal iOS knowledge-sharing forum, and interview on the iOS hiring panel."
+	static let summary = "SDE III at Zomato. iOS engineer with 4 years shipping consumer and merchant products at Zomato scale, owning features end-to-end from architecture through phased rollout. I mentor engineers, run the internal iOS knowledge-sharing forum, and interview on the iOS hiring panel."
 
 	static let links: [ProfileLink] = [
 		ProfileLink(title: "GitHub", url: #URL("https://github.com/mishandled")),
@@ -33,7 +33,7 @@ enum Resume {
 	static let facts: [Fact] = [
 		Fact(label: "name", value: "Devansh Mohata"),
 		Fact(label: "based in", value: "Gurugram, India", note: "IST"),
-		Fact(label: "role", value: "iOS Engineer, SDE II", note: "Zomato"),
+		Fact(label: "role", value: "iOS Engineer, SDE III", note: "Zomato"),
 		Fact(label: "shipping iOS", value: "since 2022", note: "4 years"),
 		Fact(label: "studied", value: "B.Tech, IT", note: "MSIT 2022"),
 		Fact(label: "off the clock", value: "badminton, walks, tinkering"),
@@ -60,24 +60,42 @@ enum Resume {
 	static let highlights: [Highlight] = [
 		Highlight(value: "20,000+", label: "orders accepted daily through a flow I built from zero"),
 		Highlight(value: "80%", label: "cache hit rate of my video caching layer, in 3 apps"),
-		Highlight(value: "−41%", label: "Restaurant Partner app size, 197 MB to 117 MB, and still shrinking"),
-		Highlight(value: "4,500+", label: "merchant partners using the order acceptance flow"),
+		Highlight(value: "−41%", label: "Restaurant Partner app size, 199 MB to 117 MB, and still shrinking"),
+		Highlight(value: "6,000+", label: "merchant partners using the order acceptance flow"),
 	]
 
 	static let jobs: [Job] = [
 		Job(
 			company: "Zomato",
-			role: "iOS Engineer (SDE II), Consumer & Restaurant Partner apps",
+			role: "iOS Engineer, Consumer & Restaurant Partner apps",
 			period: "Oct 2024 – Present",
 			points: [
-				"Built the Restaurant Partner order acceptance flow from the ground up, taking it from zero to 20,000+ accepted orders per day across 4,500+ merchant partners.",
-				"Cut the Restaurant Partner app size by 41%, from 197 MB to 117 MB and still going, for merchants on constrained devices and networks.",
+				"Built the Restaurant Partner order management flow from scratch as modular Swift packages (orders, push notifications, login), taking it from zero to 20,000+ orders per day across 6,000+ merchant partners.",
+				"Made real-time order delivery reliable: moved MQTT into a shared connection module with session recovery, added backoff retries for failed order fetches, and stopped a refresh loop firing 300+ requests a minute.",
+				"Cut the Restaurant Partner app size by 41%, from 199 MB to 117 MB and still going, for merchants on constrained devices and networks.",
 				"Built the video caching layer now used in Zomato, District, and Hyperpure, with an 80% hit rate from partial caching on AVAssetResourceLoader and byte-range requests.",
-				"Shipped the Lockdown Dish Craving rail as a fully server-driven component, live on the Zomato home screen at 100% rollout, so merchandising ships changes with zero app releases.",
+				"Built the iOS CI/CD pipeline on GitHub Actions (App Store uploads, version bumps, PR linting, SwiftFormat hooks, Slack release tracking), 143 snapshot tests for server-driven UI, and an in-app debugger for network and analytics.",
+				"Shipped a personalised dish-discovery rail as a fully server-driven component, live on the Zomato home screen at 100% rollout, so merchandising ships changes with zero app releases.",
 				"Shipped merchant tools: on-device FSSAI licence OCR with Vision, voice search of reviews with SFSpeechRecognizer, and a QR scanner that marks orders ready in one tap.",
 				"Delivered Lookback 2024, the year-in-review, combining Lottie, video overlays, and per-user data in one scroll-driven flow.",
+				"Drove platform migrations (scene-based lifecycle, Decodable models, a shared networking layer, a Kotlin Multiplatform module) and contributed 58 PRs to the merchant API gateway backend.",
+				"Mentor 3 engineers through code reviews, run the internal iOS knowledge-sharing forum, and sit on the iOS hiring panel.",
 			],
-			tech: ["Swift", "SwiftUI", "UIKit", "Objective-C", "AVFoundation", "Vision", "Speech", "Combine", "Lottie"]
+			visiblePoints: 4,
+			steps: [
+				Step(title: "SDE III", period: "Oct 2026 – Present", note: "still cooking"),
+				Step(title: "SDE II", period: "Oct 2024 – Oct 2026"),
+			],
+			tech: ["Swift", "SwiftUI", "UIKit", "Objective-C", "SPM", "MQTT", "Core Data", "AVFoundation", "Vision", "Speech", "Combine", "Lottie", "GitHub Actions"]
+		),
+		Job(
+			company: "Deutsche Telekom Digital Labs",
+			role: "iOS Engineer",
+			period: "Jun 2024 – Sep 2024",
+			points: [
+				"Built finance screens for payments and transaction tracking in SwiftUI, and fixed memory leaks across core modules.",
+			],
+			tech: ["Swift", "SwiftUI"]
 		),
 		Job(
 			company: "LikeMinds",
@@ -123,8 +141,8 @@ enum Resume {
 
 	static let skills: [SkillGroup] = [
 		SkillGroup(title: "Languages & frameworks", items: ["Swift", "Objective-C", "SwiftUI", "UIKit", "Combine", "AVFoundation", "Vision", "Speech", "Core Animation", "Lottie"]),
-		SkillGroup(title: "Architecture", items: ["Server-driven UI", "Modular SDK design", "VIPER", "MVVM", "async/await", "GCD", "REST", "Codable"]),
-		SkillGroup(title: "Tools", items: ["Xcode", "Instruments", "Git", "GitHub Actions", "CocoaPods", "Swift Package Manager"]),
+		SkillGroup(title: "Architecture", items: ["Server-driven UI", "Modular SDK design", "VIPER", "MVVM", "async/await", "GCD", "REST", "Codable", "MQTT/WebSockets", "Feature flags & phased rollouts"]),
+		SkillGroup(title: "Tools", items: ["Xcode", "Instruments", "XCTest", "Snapshot testing", "Git", "GitHub Actions", "CocoaPods", "Swift Package Manager", "Claude Code", "Codex"]),
 	]
 
 	static let education = Education(
@@ -160,7 +178,21 @@ struct Job {
 	let role: String
 	let period: String
 	let points: [String]
+	/**
+	How many points show before the rest fold behind a toggle. All of them when nil.
+	*/
+	var visiblePoints: Int?
+	/**
+	The titles held at the company, newest first, shown as a timeline.
+	*/
+	var steps: [Step] = []
 	let tech: [String]
+}
+
+struct Step {
+	let title: String
+	let period: String
+	var note: String?
 }
 
 struct OpenSourceProject {

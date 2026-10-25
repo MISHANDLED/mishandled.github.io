@@ -1,12 +1,12 @@
 ---
-title: 'How We Shrank the Zomato Merchant App from 197 MB to 117 MB'
+title: 'How We Shrank the Zomato Merchant App from 199 MB to 117 MB'
 description: 'Compiler flags, static linking, symbol stripping, and deleting what we did not need: the checklist behind a 41% smaller iOS app, with the traps that hide the savings.'
 publicationDate: '2026-10-12'
 ---
 
 The Zomato merchant app is what restaurants use to accept and manage orders. Many of them run it on older, low-storage phones over slow networks, so every extra megabyte means a slower install, a failed update, or a restaurant that stays on an old version.
 
-Over a few months, we cut the iOS app from **197 MB to 117 MB**, 41% smaller, and the work is still going. There was no single big win. Some changes saved megabytes, some saved kilobytes, and the biggest lesson was that build settings lie more often than you expect.
+Over a few months, we cut the iOS app from **199 MB to 117 MB**, 41% smaller, and the work is still going. There was no single big win. Some changes saved megabytes, some saved kilobytes, and the biggest lesson was that build settings lie more often than you expect.
 
 ## The app
 
